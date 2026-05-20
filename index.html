@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片分割器</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Upload Screen -->
+    <div class="upload-screen" id="uploadScreen">
+      <h1 class="logo">图片分割器</h1>
+      <p class="subtitle">拖拽或粘贴（Ctrl+V）图片开始分割</p>
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-inner">
+          <div class="upload-icon">+</div>
+          <p class="upload-text">将图片拖拽到这里</p>
+          <p class="upload-hint">或 <label for="fileInput" class="upload-link">点击选择文件</label></p>
+          <input type="file" id="fileInput" accept="image/*" hidden>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace hidden" id="workspace">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <button class="btn-icon" id="backBtn" title="更换图片">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 12l5-5M3 12l5 5"/></svg>
+          更换图片
+        </button>
+
+        <div class="toolbar-section">
+          <div class="toolbar-section-header">
+            <span class="toolbar-label">分割</span>
+          </div>
+          <div class="toolbar-group">
+            <div class="num-input">
+              <label>行</label>
+              <div class="num-stepper">
+                <button class="stepper-btn" data-target="rowsInput" data-dir="-1">−</button>
+                <input type="number" id="rowsInput" min="1" max="50" value="2">
+                <button class="stepper-btn" data-target="rowsInput" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="num-input">
+              <label>列</label>
+              <div class="num-stepper">
+                <button class="stepper-btn" data-target="colsInput" data-dir="-1">−</button>
+                <input type="number" id="colsInput" min="1" max="50" value="2">
+                <button class="stepper-btn" data-target="colsInput" data-dir="1">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-smart" id="smartBtn" title="根据背景色自动对齐分割线">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            智能分割
+          </button>
+        </div>
+
+        <div class="toolbar-section">
+          <div class="toolbar-section-header">
+            <span class="toolbar-label">裁切</span>
+          </div>
+          <div class="crop-inputs hidden" id="cropInputs">
+            <div class="num-input">
+              <label>上</label>
+              <div class="num-stepper">
+                <button class="stepper-btn" data-target="cropMarginTopInput" data-dir="-1">−</button>
+                <input type="number" id="cropMarginTopInput" min="0" max="200" value="0">
+                <button class="stepper-btn" data-target="cropMarginTopInput" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="num-input">
+              <label>下</label>
+              <div class="num-stepper">
+                <button class="stepper-btn" data-target="cropMarginBottomInput" data-dir="-1">−</button>
+                <input type="number" id="cropMarginBottomInput" min="0" max="200" value="0">
+                <button class="stepper-btn" data-target="cropMarginBottomInput" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="num-input">
+              <label>左</label>
+              <div class="num-stepper">
+                <button class="stepper-btn" data-target="cropMarginLeftInput" data-dir="-1">−</button>
+                <input type="number" id="cropMarginLeftInput" min="0" max="200" value="0">
+                <button class="stepper-btn" data-target="cropMarginLeftInput" data-dir="1">+</button>
+              </div>
+            </div>
+            <div class="num-input">
+              <label>右</label>
+              <div class="num-stepper">
+                <button class="stepper-btn" data-target="cropMarginRightInput" data-dir="-1">−</button>
+                <input type="number" id="cropMarginRightInput" min="0" max="200" value="0">
+                <button class="stepper-btn" data-target="cropMarginRightInput" data-dir="1">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="btn-smart btn-secondary" id="cropBtn" title="裁切掉边缘背景">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v6H2v2h4v8h8v4h2v-4h6v-6h-6V6h-2zm4 10V8h2v4h-2zm6 0h-2V8h2v4z"/></svg>
+            边缘裁切
+          </button>
+          <button class="btn-smart btn-secondary btn-undo hidden" id="undoCropBtn" title="恢复上次裁切">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6.69 3L3 13"/></svg>
+            复原
+          </button>
+        </div>
+
+        <div class="toolbar-section">
+          <div class="toolbar-section-header">
+            <span class="toolbar-label">设置</span>
+          </div>
+          <div class="toolbar-group">
+            <div class="color-picker-group">
+              <label>背景色</label>
+              <div class="color-picker-wrap">
+                <input type="color" id="bgColor" value="#ffffff">
+                <button class="btn-auto" id="autoColorBtn" title="自动检测">自动</button>
+              </div>
+            </div>
+          </div>
+          <div class="toolbar-divider"></div>
+          <div class="inline-input">
+            <label>前缀</label>
+            <input type="text" id="prefixInput" value="image" placeholder="文件名前缀">
+          </div>
+          <div class="inline-input">
+            <label>格式</label>
+            <select id="formatSelect">
+              <option value="png">PNG</option>
+              <option value="jpeg">JPEG</option>
+              <option value="webp">WebP</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-spacer"></div>
+
+        <button class="btn-download" id="downloadBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          下载 ZIP
+        </button>
+      </div>
+
+      <!-- Canvas Area -->
+      <div class="canvas-area" id="canvasArea">
+        <div class="canvas-container" id="canvasContainer">
+          <canvas id="imageCanvas"></canvas>
+          <div id="gridOverlay"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span id="imageInfo"></span>
+      <span class="status-sep">·</span>
+      <span class="status-tip">拖拽分割线可自由调整位置</span>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "image-splitter",
+  "version": "1.0.0",
+  "description": "图片分割器 - 上传图片，均匀或自由分割，下载ZIP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["image", "splitter", "tool"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}
